@@ -1,4 +1,4 @@
-#include "ping.h"
+#include "../inc/ping.h"
 
 /* * REQUIREMENTS *
 * - inetutils-2.0 ping = reference
@@ -14,14 +14,28 @@
 - STATISTICS AND PRINTING
 */
 
-int check_input(int ac, char **av)
-{
-	if (ac == 1)
+/*
+	- INITIALIZE -
+*/
+void initialize()	{
+	t_ping *ping;
+
+	ping = get_ping();
+	bzero(ping, sizeof(t_ping));
+	ping->ip_str = NULL;
+	ping->domain = NULL;
 }
 
+/*
+	- MAIN -
+	+ checks input
+*/
 int main(int ac, char **av)
 {
-	if (check_input(ac, av))
+	check_input(ac, av);
+
+
+
 
 	return (0);
 }

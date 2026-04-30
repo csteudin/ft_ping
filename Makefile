@@ -21,7 +21,7 @@ $(NAME) : $(OBJ_FILES)
 	$(CC) $(CCFLAGS) $^ -o $@
 	echo "$(NAME) got compiled"
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(OBJ_DIR)
 	$(CC) $(CCFLAGS) -c $< -o $@
 
