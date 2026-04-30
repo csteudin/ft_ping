@@ -31,7 +31,6 @@ void initialize()	{
 	ping = get_ping();
 	bzero(ping, sizeof(t_ping));
 	ping->ip_str = NULL;
-	ping->domain = NULL;
 }
 
 /*
@@ -41,7 +40,7 @@ void initialize()	{
 int main(int ac, char **av)
 {
 	check_input(ac, av);
-
+	resolve_host();
 	//init socket
 	//send loop
 	//recv loop

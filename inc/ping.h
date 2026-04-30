@@ -9,8 +9,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 typedef enum e_flag
 {
@@ -33,14 +35,17 @@ typedef struct s_ping
 {
 	bool	set_host;
 	bool	verbose;
+
 	int		count;
 	double	interval;
 	int		ttl;
 
 	char *ip_str;
-	char *domain;
-	int64_t	ip;
-	struct sockaddr_in *dest_addr;
+	char domain[256];
+
+	char dest_ip[INET_ADDRSTRLEN];
+	struct sockaddr_in dest_addr;
+
 } t_ping;
 
 // main
@@ -55,6 +60,8 @@ void	handle_host(char *token);
 void	check_flag(char **av, int *i, t_flag flag);
 void	handle_flag(char *token, char **av, int *i);
 void	check_input(int ac, char **av);
+// socket
+void resolve_host();
 
 // utils
 int		is_float(const char *str);

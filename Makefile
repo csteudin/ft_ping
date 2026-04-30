@@ -1,7 +1,7 @@
 # REQUIREMENTS #
 NAME = ft_ping
 CC = cc
-CCFLAGS = -Wall -Wextra -Werror
+CCFLAGS = -Wall -Wextra -Werror -D_GNU_SOURCE
 
 # DIRECTORYZ #
 SRC_DIR = src
