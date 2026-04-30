@@ -15,6 +15,14 @@
 */
 
 /*
+	+ BONUS +
+
+	-c <count>
+	-i <interval>
+	-t <ttl>
+*/
+
+/*
 	- INITIALIZE -
 */
 void initialize()	{
@@ -34,8 +42,10 @@ int main(int ac, char **av)
 {
 	check_input(ac, av);
 
-
-
+	//init socket
+	//send loop
+	//recv loop
+	//print
 
 	return (0);
 }
