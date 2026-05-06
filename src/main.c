@@ -25,26 +25,34 @@
 /*
 	- INITIALIZE -
 */
-void initialize()	{
-	t_ping *ping;
+	void initialize()	{
+		t_ping *ping;
 
-	ping = get_ping();
-	bzero(ping, sizeof(t_ping));
-	ping->ip_str = NULL;
-}
+		ping = get_ping();
+		bzero(ping, sizeof(t_ping));
+		ping->ip_str = NULL;
+		ping->count = -1;
+		ping->sockfd = -1;
+		ping->interval = 1.0;
+		ping->ttl = 64;
+		ping->sequence = 0;
+	}
 
 /*
 	- MAIN -
 	+ checks input
 */
-int main(int ac, char **av)
-{
-	check_input(ac, av);
-	resolve_host();
-	//init socket
-	//send loop
-	//recv loop
-	//print
+	int main(int ac, char **av)
+	{
+		initialize();
+		check_input(ac, av);
+		resolve_host();
+		setup_socket();
+		send_ping();
+		receive_ping();
+		//send loop
+		//recv loop
+		//print
 
-	return (0);
-}
+		return (0);
+	}

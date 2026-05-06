@@ -11,7 +11,7 @@
 		if	(ping->ip_str == NULL)	{
 			ping->ip_str = token;
 			strncpy(ping->domain, token, sizeof(ping->domain) - 1);
-			ping->domain[strlen(ping->domain)] = '\0';
+			ping->domain[sizeof(ping->domain) - 1] = '\0';
 			ping->set_host = true;
 		}
 		else

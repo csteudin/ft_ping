@@ -3,15 +3,18 @@
 
 //--* / = \ *-----
 
-#include <ctype.h>
-#include <stdlib.h>
+#include <unistd.h>
 #include <stdio.h>
-#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <ctype.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/ip_icmp.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
 
 typedef enum e_flag
@@ -39,6 +42,7 @@ typedef struct s_ping
 	int		count;
 	double	interval;
 	int		ttl;
+	int		sockfd;
 
 	char *ip_str;
 	char domain[256];
@@ -46,11 +50,16 @@ typedef struct s_ping
 	char dest_ip[INET_ADDRSTRLEN];
 	struct sockaddr_in dest_addr;
 
+	int sequence;
 } t_ping;
 
 // main
-void initialize();
-int main(int ac, char **av);
+void	initialize();
+int		main(int ac, char **av);
+
+// connection
+void send_ping();
+void receive_ping();
 
 // print
 void	print_and_exit();
@@ -61,7 +70,8 @@ void	check_flag(char **av, int *i, t_flag flag);
 void	handle_flag(char *token, char **av, int *i);
 void	check_input(int ac, char **av);
 // socket
-void resolve_host();
+void	setup_socket();
+void	resolve_host();
 
 // utils
 int		is_float(const char *str);
