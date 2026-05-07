@@ -9,3 +9,9 @@
         
         exit(1);
     }
+
+    void print_start()  {
+        t_ping *ping = get_ping();
+
+        printf("XXX: started to ping %s\n", ping->domain);
+    }

@@ -36,7 +36,27 @@
 		ping->interval = 1.0;
 		ping->ttl = 64;
 		ping->sequence = 0;
+		ping->sent = 0;
+		ping->received = 0;
+		ping->min_rtt = 0;
+		ping->max_rtt = 0;
+		ping->mix_rtt = 0;
 	}
+
+/*
+	- PING LOOP -
+*/
+	void ping_loop()	{
+		while(1)
+		{
+			send_ping();
+
+			receive_ping();
+
+			sleep(1);
+		}
+	}
+
 
 /*
 	- MAIN -
@@ -48,11 +68,13 @@
 		check_input(ac, av);
 		resolve_host();
 		setup_socket();
-		send_ping();
-		receive_ping();
-		//send loop
-		//recv loop
-		//print
+
+		print_start();
+		
+		//setup_signals();
+		signal(SIGINT, handle_sigint);
+		
+		ping_loop();
 
 		return (0);
 	}

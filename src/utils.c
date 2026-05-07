@@ -28,6 +28,7 @@
         }
         return 0;
     }
+    
 /*
     - IS NUMBER -
     + checks if the given string is a valid number

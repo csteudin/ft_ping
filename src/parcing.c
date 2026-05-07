@@ -112,3 +112,32 @@
 		if (ping->ip_str == NULL)
 			ft_err("XXX: destination required\n", 1);
 	}
+
+/*
+	- VALID ICMP -
+*/
+	int valid_icmp(char *buf, int len)	{
+		struct ip *ip;
+		t_icmp_header *icmp;
+
+		ip = (struct ip *)buf;
+
+		if ((size_t)len < (ip->ip_hl * 4 + sizeof(t_icmp_header)))
+			return (0);
+
+		icmp = (t_icmp_header *)(buf + (ip->ip_hl * 4));
+
+		if (icmp->type != ICMP_ECHOREPLY)
+			return (0);
+
+		if (icmp->code != 0)
+			return (0);
+
+		if (icmp->id != (uint16_t)getpid())
+			return (0);
+
+		if (checksum(icmp, len - (ip->ip_hl * 4)) != 0)
+			return (0);
+
+		return (1);
+	}

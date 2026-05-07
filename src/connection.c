@@ -7,7 +7,7 @@
     + always creates the checksum for the whole ICMP header
     +
 */
-    static uint16_t checksum(void *buf, int len)
+    uint16_t checksum(void *buf, int len)
     {
         uint16_t    *data = buf;
         uint32_t    sum = 0;
@@ -46,8 +46,12 @@
         if (sendto(ping->sockfd, &packet, sizeof(packet), 0, \
             (struct sockaddr *)&ping->dest_addr, sizeof(ping->dest_addr)) < 0)
             ft_err("XXX: sendto failed\n", 1);
+        ping->sent++;
     }
 
+/*
+    - RECEIVE PING -
+*/
     void receive_ping() {
         t_ping *ping = get_ping();
         char buf[1024];
@@ -57,25 +61,37 @@
         t_icmp_header       *icmp;
         struct timeval      time_start, time_stop;
         double              rtt;
-
-        if(recvfrom(ping->sockfd, buf, sizeof(buf), 0, \
-            (struct sockaddr *)&from, &from_len) < 0)
-            ft_err("XXX: error recvfrom failed\n", 1);
+        int                 bytes;
         
+        bytes = recvfrom(ping->sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&from, &from_len);
+        if (bytes < 0)
+            ft_err("recvfrom failed\n", 1);
+
         gettimeofday(&time_stop, NULL);
+
+        if (!valid_icmp(buf, bytes))
+            return;
 
         ip_header = (struct ip *)buf;
         icmp = (t_icmp_header *)(buf + (ip_header->ip_hl * 4));
-
-        if (icmp->type != ICMP_ECHOREPLY || icmp->id != (uint16_t)getpid())
-            return ;
         
         memcpy(&time_start, icmp->payload, sizeof(time_start));
 
         rtt = (time_stop.tv_sec - time_start.tv_sec) * 1000
             + (time_stop.tv_usec - time_start.tv_usec) / 1000;
 
+        ping->received++;
+
+        if (ping->min_rtt == 0 || rtt < ping->min_rtt)
+            ping->min_rtt = rtt;
+        
+        if (rtt > ping->max_rtt)
+            ping->max_rtt = rtt;
+        
+        ping->mix_rtt += rtt;
+
         printf("%zu bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n", 
                 sizeof(t_icmp_header), inet_ntoa(from.sin_addr), \
                 icmp->sequence, ip_header->ip_ttl, rtt);
+
     }
