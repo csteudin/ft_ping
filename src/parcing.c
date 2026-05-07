@@ -117,27 +117,55 @@
 	- VALID ICMP -
 */
 	int valid_icmp(char *buf, int len)	{
+		t_ping *ping = get_ping();
 		struct ip *ip;
 		t_icmp_header *icmp;
 
+		if (len < (int)sizeof(struct ip))	{
+			if (ping->verbose)
+				printf("ft_ping: packet too small\n");
+			return (0);
+		}
+
 		ip = (struct ip *)buf;
 
-		if ((size_t)len < (ip->ip_hl * 4 + sizeof(t_icmp_header)))
+		if (ip->ip_hl < 5)	{
+			if (ping->verbose)
+				printf("ft_ping: invalid ip header length\n");
 			return (0);
+		}
+
+		if ((size_t)len < (ip->ip_hl * 4 + sizeof(t_icmp_header)))	{
+			if (ping->verbose)
+				printf("ft_ping: truncated icmp packet\n");
+			return (0);
+		}
 
 		icmp = (t_icmp_header *)(buf + (ip->ip_hl * 4));
 
-		if (icmp->type != ICMP_ECHOREPLY)
+		if (icmp->type != ICMP_ECHOREPLY)	{
+			if (ping->verbose && icmp->type != ICMP_ECHO)
+				printf("ft_ping: unexpected icmp type %d\n", icmp->type);
 			return (0);
+		}
 
-		if (icmp->code != 0)
+		if (icmp->code != 0)	{
+			if (ping->verbose)
+				printf("ft_ping: unexpected icmp code %d\n", icmp->code);
 			return (0);
+		}
 
-		if (icmp->id != (uint16_t)getpid())
+		if (ntohs(icmp->id) != (uint16_t)getpid())	{
+			if (ping->verbose)
+				printf("ft_ping: packet id mismatch\n");
 			return (0);
+		}
 
-		if (checksum(icmp, len - (ip->ip_hl * 4)) != 0)
+		if (checksum(icmp, len - (ip->ip_hl * 4)) != 0)	{
+			if (ping->verbose)
+				printf("ft_ping: invalid checksum\n");
 			return (0);
+		}
 
 		return (1);
 	}

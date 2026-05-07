@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <errno.h>
 #include <stdint.h>
 #include <signal.h>
 #include <ctype.h>
@@ -25,7 +26,7 @@ typedef enum e_flag
 	INTERVAL
 }	t_flag;
 
-typedef struct icmp_header
+typedef struct __attribute__((packed)) icmp_header
 {
 	uint8_t type;
 	uint8_t code;
@@ -52,8 +53,6 @@ typedef struct s_ping
 	struct sockaddr_in dest_addr;
 
 	int sequence;
-
-	int sent;
 	int received;
 
 	double min_rtt;
@@ -74,9 +73,10 @@ void 	receive_ping();
 // print
 void	print_and_exit();
 void	print_start();
+void	print_stats();
 
 // signals
-//void	setup_signals();
+void	setup_signals();
 void	handle_sigint(int sig);
 
 // parcing

@@ -15,3 +15,7 @@
 
         printf("XXX: started to ping %s\n", ping->domain);
     }
+
+    void print_stats()  {
+        
+    }

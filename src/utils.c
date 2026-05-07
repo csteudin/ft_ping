@@ -9,6 +9,9 @@
         bool dot = false;
         int i = 0;
 
+        if (!str || !str[0])
+            return (1);
+
         if (str[i] == '+')
             i++;
         
@@ -26,7 +29,7 @@
                 return (1);
             i++;
         }
-        return 0;
+        return (0);
     }
     
 /*
@@ -38,6 +41,9 @@
         int len = strlen(str);
         int i = 0;
         
+        if (!str || !str[0])
+            return (1);
+
         if (str[i] == '+')
             i++;
         if (str[i] == '+')

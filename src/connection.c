@@ -37,16 +37,43 @@
         bzero(&packet, sizeof(packet));
         packet.type = ICMP_ECHO;
         packet.code = 0;
-        packet.id = (uint16_t)getpid();
-        packet.sequence = ping->sequence++;
-        gettimeofday(&time, NULL);
+        packet.id = htons(getpid());
+        packet.sequence = htons(ping->sequence);
+        if (gettimeofday(&time, NULL) < 0)
+            ft_err("gettimeofday failed\n", 1);
         memcpy(packet.payload, &time, sizeof(time));
         packet.checksum = checksum(&packet, sizeof(packet));
 
         if (sendto(ping->sockfd, &packet, sizeof(packet), 0, \
             (struct sockaddr *)&ping->dest_addr, sizeof(ping->dest_addr)) < 0)
             ft_err("XXX: sendto failed\n", 1);
-        ping->sent++;
+        ping->sequence++;
+    }
+
+    int check_connection()  {
+        t_ping *ping = get_ping();
+        struct timeval timeout;
+        fd_set  readfds;
+
+        FD_ZERO(&readfds);
+        FD_SET(ping->sockfd, &readfds);
+
+        timeout.tv_sec = (int)ping->interval;
+        timeout.tv_usec = (ping->interval - (int)ping->interval) * 1000000;
+        
+        int ret = select(ping->sockfd + 1, &readfds, NULL, NULL, &timeout);
+
+        if (ret < 0)    {
+            if (errno == EINTR)
+                return (1);
+            ft_err("select failed\n", 1);
+        }
+        if (ret == 0)   {
+            if(ping->verbose)
+                printf("Request timeout for icmp_seq %d\n", ping->sequence - 1);
+            return (1);
+        }
+        return (0);
     }
 
 /*
@@ -63,11 +90,20 @@
         double              rtt;
         int                 bytes;
         
-        bytes = recvfrom(ping->sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&from, &from_len);
-        if (bytes < 0)
-            ft_err("recvfrom failed\n", 1);
+        if(check_connection())
+            return ;
 
-        gettimeofday(&time_stop, NULL);
+        from_len = sizeof(from);
+
+        bytes = recvfrom(ping->sockfd, buf, sizeof(buf), 0, (struct sockaddr *)&from, &from_len);
+        if (bytes < 0)  {
+            if (errno == EINTR)
+                return;
+            ft_err("recvfrom failed\n", 1);
+        }
+
+        if (gettimeofday(&time_stop, NULL) < 0)
+            ft_err("gettimeofday failed\n", 1);
 
         if (!valid_icmp(buf, bytes))
             return;
@@ -76,9 +112,9 @@
         icmp = (t_icmp_header *)(buf + (ip_header->ip_hl * 4));
         
         memcpy(&time_start, icmp->payload, sizeof(time_start));
-
-        rtt = (time_stop.tv_sec - time_start.tv_sec) * 1000
-            + (time_stop.tv_usec - time_start.tv_usec) / 1000;
+// - - - CUT HERE - - - - --> print
+        rtt = ((double)time_stop.tv_sec - (double)time_start.tv_sec) * 1000
+            + ((double)time_stop.tv_usec - (double)time_start.tv_usec) / 1000;
 
         ping->received++;
 
@@ -90,8 +126,8 @@
         
         ping->mix_rtt += rtt;
 
-        printf("%zu bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n", 
-                sizeof(t_icmp_header), inet_ntoa(from.sin_addr), \
-                icmp->sequence, ip_header->ip_ttl, rtt);
+        printf("%d bytes from %s: icmp_seq=%d ttl=%d time=%.3f ms\n", 
+                bytes - (ip_header->ip_hl * 4), inet_ntoa(from.sin_addr), \
+                ntohs(icmp->sequence), ip_header->ip_ttl, rtt);
 
     }
