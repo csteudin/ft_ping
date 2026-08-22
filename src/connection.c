@@ -33,6 +33,7 @@
         t_ping *ping = get_ping();
         t_icmp_header   packet;
         struct timeval  time;
+        char buf[256];
 
         bzero(&packet, sizeof(packet));
         packet.type = ICMP_ECHO;
@@ -45,21 +46,26 @@
         packet.checksum = checksum(&packet, sizeof(packet));
 
         if (sendto(ping->sockfd, &packet, sizeof(packet), 0, \
-            (struct sockaddr *)&ping->dest_addr, sizeof(ping->dest_addr)) < 0)
-            ft_err("XXX: sendto failed\n", 1);
+            (struct sockaddr *)&ping->dest_addr, sizeof(ping->dest_addr)) < 0)  {
+            snprintf(buf, sizeof(buf), "ft_ping: sendto: %s\n", strerror(errno));
+            ft_err(buf, 1);
+            }
         ping->sequence++;
     }
 
-    int check_connection()  {
+    int check_connection(double timeout_sec)  {
         t_ping *ping = get_ping();
         struct timeval timeout;
         fd_set  readfds;
 
+        if (timeout_sec < 0)
+            timeout_sec = 0;
+        
         FD_ZERO(&readfds);
         FD_SET(ping->sockfd, &readfds);
 
-        timeout.tv_sec = (int)ping->interval;
-        timeout.tv_usec = (ping->interval - (int)ping->interval) * 1000000;
+        timeout.tv_sec = (int)timeout_sec;
+        timeout.tv_usec = (timeout_sec - (int)timeout_sec) * 1000000;
         
         int ret = select(ping->sockfd + 1, &readfds, NULL, NULL, &timeout);
 
@@ -79,7 +85,7 @@
 /*
     - RECEIVE PING -
 */
-    void receive_ping() {
+    void receive_ping(double timeout_sec) {
         t_ping *ping = get_ping();
         char buf[1024];
         struct sockaddr_in  from;
@@ -90,7 +96,7 @@
         double              rtt;
         int                 bytes;
         
-        if(check_connection())
+        if(check_connection(timeout_sec))
             return ;
 
         from_len = sizeof(from);
@@ -107,6 +113,12 @@
 
         if (!valid_icmp(buf, bytes))
             return;
+
+        if (from.sin_addr.s_addr != ping->dest_addr.sin_addr.s_addr) {
+            if (ping->verbose)
+                printf("ft_ping: packet from unexpected source\n");
+            return;
+        }
 
         ip_header = (struct ip *)buf;
         icmp = (t_icmp_header *)(buf + (ip_header->ip_hl * 4));

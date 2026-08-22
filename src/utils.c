@@ -38,16 +38,16 @@
     + checks for +, and exceptions ++
 */
     int is_number(const char *str)    {
-        int len = strlen(str);
+        int len;
         int i = 0;
         
         if (!str || !str[0])
             return (1);
-
+        len = strlen(str);
         if (str[i] == '+')
             i++;
-        if (str[i] == '+')
-            ft_err("XXX: invalid argument\n", 1);
+        if (i == len)
+            return (1);
 
         while(i < len)
         {

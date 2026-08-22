@@ -46,15 +46,24 @@
 	- PING LOOP -
 */
 	void ping_loop()	{
-	t_ping *ping = get_ping();
+		t_ping *ping = get_ping();
+		struct timeval t_send, t_now;
+		double elapsed, remaining;
 
 		while(ping->count == -1 || ping->sequence < ping->count)
 		{
+			gettimeofday(&t_send, NULL);
 			send_ping();
 
-			receive_ping();
+			receive_ping(ping->interval);
 
-			usleep((useconds_t)(ping->interval * 1000000));
+			gettimeofday(&t_now, NULL);
+			elapsed = (t_now.tv_sec - t_send.tv_sec)
+                + (t_now.tv_usec - t_send.tv_usec) / 1000000.0;
+        	remaining = ping->interval - elapsed;
+
+			if (remaining > 0)
+				usleep((useconds_t)(remaining * 1000000));
 		}
 		print_stats();
 	}

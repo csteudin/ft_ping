@@ -9,13 +9,18 @@
     void setup_socket() {
         t_ping *ping = get_ping();
         int ttl;
+        char buf[256];
 
         ping->sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-        if (ping->sockfd < 0)
-            ft_err("XXX: socket: Operation not permitted\n", 1);
+        if (ping->sockfd < 0) {
+            snprintf(buf, sizeof(buf), "ft_ping: socket: %s\n", strerror(errno));
+            ft_err(buf, 1);
+        }
         ttl = ping->ttl;
-        if (setsockopt(ping->sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0)
-            ft_err("XXX: setsockopt TTL failed\n", 1);
+        if (setsockopt(ping->sockfd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0) {
+            snprintf(buf, sizeof(buf), "ft_ping: setsockopt: %s\n", strerror(errno));
+            ft_err(buf, 1);
+        }
     }
 /*
     - RESOLVE HOST -
@@ -25,23 +30,23 @@
 */
     void resolve_host() {
         t_ping *ping = get_ping();
-
         struct addrinfo hints;
         struct addrinfo *res;
         struct sockaddr_in *addr_in;
         int ret;
+        char err_buf[256];
 
         bzero(&hints, sizeof(struct addrinfo));
 
         hints.ai_family = AF_INET;
-        hints.ai_socktype = 0; // SOCK_RAW on bare meddl
+        hints.ai_socktype = 0; // SOCK_RAW on bare meddl || SOCK_DGRAM
         hints.ai_protocol = IPPROTO_ICMP;
 
         ret = getaddrinfo(ping->domain, NULL, &hints, &res);
-        if(ret != 0)    {
-            fprintf(stderr, "XXX: %s: %s\n"
-                , ping->domain, gai_strerror(ret));
-        exit(1);
+        if (ret != 0) {
+            snprintf(err_buf, sizeof(err_buf), "ft_ping: %s: %s\n",
+                    ping->domain, gai_strerror(ret));
+            ft_err(err_buf, 1);
         }
 
         addr_in = (struct sockaddr_in *)res->ai_addr;
