@@ -113,10 +113,6 @@ Beyond the flags, the mandatory part covers:
 - A clean statistics summary on exit (via `Ctrl+C` or after a fixed count) — packets sent, received, loss %, and min/avg/max RTT
 - No crashes, ever — every syscall failure is caught and reported cleanly instead of segfaulting
 
-<div align="center">
-
-*[ screenshot: a normal run against a real host — a few replies + the final stats block ]*
-
 </div>
 
 ---
