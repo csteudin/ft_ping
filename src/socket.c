@@ -5,10 +5,12 @@
     + sets up a raw socket ( neccesary for selfmade icmp )
     + sets up the ttl for packages send ny this socket
     + IF -t takes the given ttl, else takes 64 <standard>
+    + also sets tos and dontroute if those flags were given
 */
     void setup_socket() {
         t_ping *ping = get_ping();
         int ttl;
+        int one = 1;
         char buf[256];
 
         ping->sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
@@ -21,6 +23,19 @@
             snprintf(buf, sizeof(buf), "ft_ping: setsockopt: %s\n", strerror(errno));
             ft_err(buf, 1);
         }
+        if (ping->tos >= 0) {
+            int tos = ping->tos;
+            if (setsockopt(ping->sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos)) < 0) {
+                snprintf(buf, sizeof(buf), "ft_ping: setsockopt(IP_TOS): %s\n", strerror(errno));
+                ft_err(buf, 1);
+            }
+        }
+        if (ping->dontroute) {
+        if (setsockopt(ping->sockfd, SOL_SOCKET, SO_DONTROUTE, &one, sizeof(one)) < 0) {
+            snprintf(buf, sizeof(buf), "ft_ping: setsockopt(SO_DONTROUTE): %s\n", strerror(errno));
+            ft_err(buf, 1);
+        }
+    }
     }
 /*
     - RESOLVE HOST -

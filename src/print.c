@@ -12,7 +12,9 @@
         printf("\n");
         printf("  -c, --count=NUMBER         stop after sending NUMBER packets\n");
         printf("  -i, --interval=NUMBER      wait NUMBER seconds between sending each packet\n");
-        printf("      --ttl=N                specify N as time-to-live\n");
+        printf("  -r, --ignore-routing       send directly to a host on an attached network\n");
+        printf("  -T, --tos=NUM              set type of service (TOS) to NUM\n");
+        printf("  -t, --ttl=N                specify N as time-to-live\n");
         printf("  -v, --verbose              verbose output\n");
         printf("\n");
         printf("  -?, --help                 give this help list\n");
@@ -23,12 +25,21 @@
         exit(0);
     }
 
+/*
+    - PRINT START -
+    + prints the initial "PING host (ip): n data bytes" line
+*/
     void print_start()  {
         t_ping *ping = get_ping();
 
         printf("PING %s (%s): 56 data bytes\n", ping->domain, ping->dest_ip);
     }
 
+/*
+    - PRINT STATS -
+    + prints transmitted/received/loss and the rtt line
+    + gets called both on normal end and on ctrl+c
+*/
     void print_stats()  {
         t_ping *ping = get_ping();
         double mixed_rtt = 0;

@@ -24,6 +24,7 @@ typedef enum e_flag
 	COUNT,
 	TTL,
 	INTERVAL
+	TOS
 }	t_flag;
 
 typedef struct __attribute__((packed)) icmp_header
@@ -40,6 +41,8 @@ typedef struct s_ping
 {
 	bool	set_host;
 	bool	verbose;
+	bool 	dontroute;
+	int		tos;
 
 	int		count;
 	double	interval;

@@ -2,6 +2,7 @@
 
 /*
     - SETUP SIGNALS -
+    + registers our sigint handler
 */
     void setup_signals() {
         struct sigaction action;
@@ -13,6 +14,7 @@
 
 /*
     - HANDLE SIGINT -
+    + prints stats, closes the socket, exits clean
 */
     void handle_sigint(int sig) {
         t_ping *ping = get_ping();

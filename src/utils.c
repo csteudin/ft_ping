@@ -60,7 +60,7 @@
 
 /*
     - FT_ERR -
-    + prints a1 and exits with a2
+    + prints arg1 and exits with arg2
 */
     int ft_err(char *str, int ex_code)
     {

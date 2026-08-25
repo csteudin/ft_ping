@@ -1,9 +1,9 @@
 #include "../inc/ping.h"
 
 /*
-	- HANDLE HOSTS -
-	+ checks if ip_str is empty, if empty parces is
-	+ if existent, error
+    - HANDLE HOST -
+    + checks if ip_str is empty, if empty parces it
+    + if existent, error
 */
 	void handle_host(char *token)	{
 		t_ping *ping = get_ping();
@@ -79,16 +79,35 @@
 			}
 			(*i)++;
 		}
+		else if (flag == TOS) {
+			if (!av[*i + 1]) {
+				ft_err("ft_ping: option requires an argument -- 'T'\n"
+					"Try 'ft_ping --help' or 'ft_ping --usage' for more information.\n", 1);
+			}
+			if (is_number(av[*i + 1])) {
+				snprintf(buf, sizeof(buf), "ft_ping: invalid value (`%s' near `%s')\n",
+						av[*i + 1], av[*i + 1]);
+				ft_err(buf, 1);
+			}
+			ping->tos = atoi(av[*i + 1]);
+			if (ping->tos < 0 || ping->tos > 255) {
+				snprintf(buf, sizeof(buf), "ft_ping: option value too big: %s\n", av[*i + 1]);
+				ft_err(buf, 1);
+			}
+			(*i)++;
+		}
 	}
 
 /*
-	- HANDLE FLAG -
-	+ checks for verbose
-	+ checks for count		<bonus>
-	+ checks for interval	<bonus>
-	+ checks for ttl		<bonus>
-	+ checks for help
-	+ exits with other unexpected flags
+    - HANDLE FLAG -
+    + checks for verbose
+    + checks for count      <bonus>
+    + checks for interval   <bonus>
+    + checks for ttl        <bonus>
+    + checks for tos        <bonus>
+    + checks for dontroute  <bonus>
+    + checks for help
+    + exits with other unexpected flags
 */
 	void handle_flag(char *token, char **av, int *i)	{
 		t_ping *ping = get_ping();
@@ -100,8 +119,12 @@
 			check_flag(av, i, COUNT);
 		else if (strcmp(token, "-i") == 0)
 			check_flag(av, i, INTERVAL);
-		else if (strcmp(token, "-t") == 0)
+		else if (strcmp(token, "-t") == 0 || strcmp(token, "--ttl") == 0)
 			check_flag(av, i, TTL);
+		else if (strcmp(token, "-T") == 0)
+			check_flag(av, i, TOS);
+		else if (strcmp(token, "-r") == 0)
+			ping->dontroute = true;
 		else if	(strcmp(token, "-?") == 0)
 			print_and_exit();
 		else {
@@ -114,9 +137,9 @@
 	}
 
 /*
-	- CHECK INPUT -
-	+ checks for every string and parses it
-	+ throws error if not expected
+    - CHECK INPUT -
+    + checks for every string and parses it
+    + throws error if not expected
 */
 	void check_input(int ac, char **av)	
 	{
@@ -145,7 +168,10 @@
 
 
 /*
-	- VALID ICMP -
+    - VALID ICMP -
+    + checks packet size, ip header, icmp type/code, id and checksum
+    + rejects the packet if anything is off
+    + only prints why if verbose is on
 */
 	int valid_icmp(char *buf, int len)	{
 		t_ping *ping = get_ping();

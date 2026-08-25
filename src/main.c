@@ -23,7 +23,9 @@
 */
 
 /*
-	- INITIALIZE -
+    - INITIALIZE -
+    + resets the ping struct to default values before parsing args
+    + count -1 = unlimited, tos -1 = not set
 */
 	void initialize()	{
 		t_ping *ping;
@@ -32,6 +34,8 @@
 		bzero(ping, sizeof(t_ping));
 		ping->ip_str = NULL;
 		ping->count = -1;
+		ping->tos = -1;
+		ping->dontroute = false;
 		ping->sockfd = -1;
 		ping->interval = 1.0;
 		ping->ttl = 64;
@@ -43,7 +47,11 @@
 	}
 
 /*
-	- PING LOOP -
+    - PING LOOP -
+    + sends, waits for reply, then sleeps the rest of the interval
+    + measures how long send+receive took so the timing stays
+    + consistent even when a packet gets lost
+    + prints stats once the loop is done (normal end, not ctrl+c)
 */
 	void ping_loop()	{
 		t_ping *ping = get_ping();
@@ -70,8 +78,8 @@
 
 
 /*
-	- MAIN -
-	+ checks input
+    - MAIN -
+    + checks input, resolves host, opens socket, then starts pinging
 */
 	int main(int ac, char **av)
 	{

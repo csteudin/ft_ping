@@ -5,7 +5,6 @@
     + calculates the checksum and returns the sum
     + we then check if it is the same checksum
     + always creates the checksum for the whole ICMP header
-    +
 */
     uint16_t checksum(void *buf, int len)
     {
@@ -27,7 +26,8 @@
 /*
     - SEND PING -
     + sends the ICMP header with the timeval as payload
-    + 
+    + stamps the current time so we can calculate rtt later
+    + checksum gets calculated right before sending
 */
     void send_ping()    {
         t_ping *ping = get_ping();
@@ -53,6 +53,13 @@
         ping->sequence++;
     }
 
+/*
+    - CHECK CONNECTION -
+    + waits for the socket to become readable, with a timeout
+    + timeout comes in as a parameter now instead of always using
+    + the full interval, so a lost packet doesn't cost double the wait
+    + prints "Request timeout" if verbose and nothing came back
+*/
     int check_connection(double timeout_sec)  {
         t_ping *ping = get_ping();
         struct timeval timeout;
@@ -84,6 +91,10 @@
 
 /*
     - RECEIVE PING -
+    + waits (via check_connection) then reads the reply
+    + drops the packet if it's not valid or not from our host
+    + calculates rtt from the timestamp we sent, updates stats
+    + prints the result line
 */
     void receive_ping(double timeout_sec) {
         t_ping *ping = get_ping();
