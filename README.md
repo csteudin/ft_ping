@@ -170,22 +170,13 @@ sudo ./ft_ping -T 16 google.com
 sudo ./ft_ping -r 192.168.1.42
 ```
 
-<div align="center">
 
-*[ screenshot: side-by-side of a normal run vs. `--ttl 1` triggering an early death / timeout ]*
-
-*[ screenshot: `-v` enabled, showing one of the rejected-packet debug messages ]*
 
 </div>
 
 ---
 
 ## Output showcase
-
-<div align="center">
-
-*[ screenshot: your best-looking terminal capture — full run with stats ]*
-
 </div>
 
 ```
