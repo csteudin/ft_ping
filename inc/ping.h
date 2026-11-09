@@ -23,7 +23,7 @@ typedef enum e_flag
 {
 	COUNT,
 	TTL,
-	INTERVAL
+	INTERVAL,
 	TOS
 }	t_flag;
 

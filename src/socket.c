@@ -54,7 +54,7 @@
         bzero(&hints, sizeof(struct addrinfo));
 
         hints.ai_family = AF_INET;
-        hints.ai_socktype = 0; // SOCK_RAW on bare meddl || SOCK_DGRAM
+        hints.ai_socktype = 0; // SOCK_RAW on bare meddl
         hints.ai_protocol = IPPROTO_ICMP;
 
         ret = getaddrinfo(ping->domain, NULL, &hints, &res);

@@ -1,0 +1,25 @@
+services:
+  ft_ping:
+    build: .
+    image: ft_ping_container
+    container_name: ft_ping_container
+
+    # Raw sockets require NET_RAW capability
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+
+    # Allow ping / raw socket syscalls
+    security_opt:
+      - seccomp:unconfined
+
+    # Mount your project folder into the container
+    volumes:
+      - ../:/ft_ping
+
+    # Keep container alive for exec / attach
+    stdin_open: true
+    tty: true
+
+    # Stays running so you can docker exec into it
+    command: sleep infinity

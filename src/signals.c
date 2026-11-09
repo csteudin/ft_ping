@@ -18,7 +18,8 @@
 */
     void handle_sigint(int sig) {
         t_ping *ping = get_ping();
-
+        (void)sig;
+        
         print_stats();
 
         if (ping->sockfd >= 0)

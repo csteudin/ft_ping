@@ -7,16 +7,8 @@
 * - socket(IPV4, SOCK_RAW, ICMP protocol)
 * */
 
-/* _MODULES_ *
-- PARSING
-- SOCKET COMMUNICATION
-- SIGNAL HANDLING AND TIME TRACKING LOOP (MAIN)
-- STATISTICS AND PRINTING
-*/
-
 /*
 	+ BONUS +
-
 	-c <count>
 	-i <interval>
 	-t <ttl>
@@ -88,9 +80,9 @@
 		resolve_host();
 		setup_socket();
 
+		setup_signals();
 		print_start();
 		
-		setup_signals();
 		
 		ping_loop();
 
